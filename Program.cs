@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,36 +6,8 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Search search = new Search();
-        search.Start();
-    }
-}
-
-class Search
-{
-    private ListCriminals _listCriminals = new ListCriminals();
-
-    public void Start()
-    {
-        const string CommandSearch = "search";
-        const string CommandExit = "exit";
-        bool isExit = false;
-
-        while (isExit == false)
-        {
-            Console.WriteLine("Для поиска вышедшего преступника введите " + CommandSearch + " для выхода из программы " + CommandExit);
-            string userChoice = Console.ReadLine();
-
-            if (userChoice == CommandSearch)
-            {
-                _listCriminals.Filtered();
-                _listCriminals.ShowCriminals();
-            }
-            else if (userChoice == CommandExit)
-            {
-                isExit = true;
-            }
-        }
+        ListCriminals listCriminals = new ListCriminals();
+        listCriminals.Search();
     }
 }
 
@@ -45,12 +17,39 @@ class ListCriminals
 
     public ListCriminals()
     {
-        Add();
+        Fill();
     }
 
-    private List<Criminal> _filteredCriminals;
+    public void Search()
+    {
+        const string CommandShow = "show";
+        const string CommandFilter = "filter";
+        const string CommandExit = "exit";
+        bool isExit = false;
 
-    public void Filtered()
+        while (isExit == false)
+        {
+            Console.WriteLine("Для просмотра всех заключенных - " + CommandShow + ", для поиска вышедшего преступника по параметрам введите " + CommandFilter + ", для выхода из программы " + CommandExit);
+            string userChoice = Console.ReadLine();
+
+            switch (userChoice)
+            {
+                case CommandShow:
+                    ShowCriminals();
+                    break;
+
+                case CommandFilter:
+                    Filter();
+                    break;
+
+                case CommandExit:
+                    isExit = true;
+                    break;
+            }
+        }
+    }
+
+    private void Filter()
     {
         Console.WriteLine("Для установки нужных фильтров введите рост, вес и национальность преступника");
 
@@ -61,20 +60,28 @@ class ListCriminals
         Console.Write("Национальность: ");
         string nationality = Console.ReadLine();
 
-        var filteredCriminal = from Criminal criminal in _criminals where criminal.Height == height && criminal.Weight == weight &&
-                               criminal.Nationality == nationality && criminal.IsArrested == false select criminal;
-        _filteredCriminals = filteredCriminal.ToList();
+        var filteredCriminal = from Criminal criminal in _criminals
+                               where criminal.Height == height && criminal.Weight == weight &&
+                               criminal.Nationality == nationality && criminal.IsArrested == false
+                               select criminal;
+
+        foreach (Criminal criminal in filteredCriminal)
+        {
+            Console.WriteLine(criminal.FullName + " " + criminal.Height + " " + criminal.Weight + " " + criminal.Nationality);
+        }
+
+        Console.ReadKey();
     }
 
-    public void ShowCriminals()
+    private void ShowCriminals()
     {
-        foreach(var criminal in _filteredCriminals)
+        foreach (var criminal in _criminals)
         {
             Console.WriteLine(criminal.FullName + " " + criminal.Height + " " + criminal.Weight + " " + criminal.Nationality);
         }
     }
 
-    private void Add()
+    private void Fill()
     {
         _criminals.Add(new Criminal("Ержан Ержанович Ержанцев", false, 190, 80, "ержанец"));
         _criminals.Add(new Criminal("Баролд Венесов Бабкин", true, 170, 90, "мексиканец"));
